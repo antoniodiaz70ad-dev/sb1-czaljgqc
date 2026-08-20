@@ -121,3 +121,34 @@
   background-size: 200px 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* — Protocolo del Observador ————————————————————————————————————————— */
+
+html {
+  background-color: #09090b;
+}
+
+body {
+  background-color: #09090b;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * La regla global `* { transition: all }` de arriba encarece cada repintado en
+ * el teléfono; dentro del Observador se limita a las propiedades que sí se animan.
+ */
+.obs-root *,
+.obs-root *::before,
+.obs-root *::after {
+  transition-property: color, background-color, border-color, opacity, transform, box-shadow,
+    stroke-dashoffset, stroke;
+  transition-duration: 150ms;
+}
+
+.obs-root ::-webkit-scrollbar-track {
+  background: #18181b;
+}
+
+.obs-root ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+}

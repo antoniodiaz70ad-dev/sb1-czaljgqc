@@ -4,10 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/generar-iconos.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/generar-iconos.mjs",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "iconos": "node scripts/generar-iconos.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.23.12",
