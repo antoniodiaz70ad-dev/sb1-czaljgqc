@@ -21,6 +21,7 @@ export default function ObservadorApp() {
   const [activa, setActiva] = useState<string | null>(null);
   const [nuevo, setNuevo] = useState(false);
   const [filtroRegistro, setFiltroRegistro] = useState<'todos' | 'retenido'>('todos');
+  const [fichaInicial, setFichaInicial] = useState(0);
 
   const evaluacion = activa ? almacen.estado.evaluaciones.find((e) => e.id === activa) ?? null : null;
 
@@ -56,9 +57,13 @@ export default function ObservadorApp() {
                   setFiltroRegistro('retenido');
                   setPestana('registro');
                 }}
+                onAbrirFicha={(filtro) => {
+                  setFichaInicial(filtro);
+                  setPestana('ficha');
+                }}
               />
             )}
-            {pestana === 'ficha' && <Ficha />}
+            {pestana === 'ficha' && <Ficha key={fichaInicial} abiertoInicial={fichaInicial} />}
             {pestana === 'registro' && (
               <Registro
                 key={filtroRegistro}
@@ -144,6 +149,7 @@ function NuevoMaterial({
             etiqueta="Material"
             valor={titulo}
             onChange={setTitulo}
+            autoFoco
             placeholder="Un libro, un video, un paper, una certeza propia…"
           />
           <Campo

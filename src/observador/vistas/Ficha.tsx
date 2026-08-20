@@ -3,8 +3,8 @@ import { ChevronDown } from 'lucide-react';
 import { CAJONES, ESCALA_AUDITORIA, ESTRATOS, FILTROS, ORIGEN, REGLA_CIERRE } from '../protocolo';
 import { Tarjeta } from '../ui/basicos';
 
-export default function Ficha() {
-  const [abierto, setAbierto] = useState<number | null>(0);
+export default function Ficha({ abiertoInicial = 0 }: { abiertoInicial?: number | null }) {
+  const [abierto, setAbierto] = useState<number | null>(abiertoInicial);
 
   return (
     <div className="space-y-3 pb-4">

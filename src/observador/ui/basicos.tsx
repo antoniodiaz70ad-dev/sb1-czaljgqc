@@ -149,6 +149,7 @@ export function Campo({
   placeholder,
   filas = 3,
   tipo = 'area',
+  autoFoco = false,
 }: {
   etiqueta?: string;
   valor: string;
@@ -156,6 +157,7 @@ export function Campo({
   placeholder?: string;
   filas?: number;
   tipo?: 'area' | 'texto';
+  autoFoco?: boolean;
 }) {
   const clases =
     'w-full rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5 text-[15px] text-zinc-100 placeholder:text-zinc-600 focus:border-amber-400/60 focus:outline-none';
@@ -175,6 +177,7 @@ export function Campo({
           value={valor}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
+          autoFocus={autoFoco}
           className={clases}
         />
       )}

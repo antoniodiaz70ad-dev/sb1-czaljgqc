@@ -10,11 +10,13 @@ export default function Hoy({
   onAbrir,
   onNuevo,
   onVerRetenidos,
+  onAbrirFicha,
 }: {
   almacen: Almacen;
   onAbrir: (id: string) => void;
   onNuevo: () => void;
   onVerRetenidos: () => void;
+  onAbrirFicha: (filtro: number) => void;
 }) {
   const hoy = hoyLocal();
   const dia = almacen.estado.dias.find((d) => d.fecha === hoy);
@@ -86,14 +88,39 @@ export default function Hoy({
         </div>
       </Tarjeta>
 
-      {/* Filtro del día */}
-      <Tarjeta className="border-amber-900/40 bg-amber-950/15">
-        <p className="text-[12px] font-semibold uppercase tracking-widest text-amber-400/80">
-          Filtro {delDia.numero} · {delDia.nombre}
-        </p>
-        <p className="mt-2 text-[17px] italic leading-snug text-amber-100">{delDia.gatillo}</p>
-        <p className="mt-2 text-[13px] leading-relaxed text-amber-100/60">{delDia.alarma}</p>
-      </Tarjeta>
+      {/* Filtro del día: tocarlo abre la ficha en ese filtro */}
+      <button type="button" onClick={() => onAbrirFicha(delDia.id)} className="block w-full text-left">
+        <Tarjeta className="border-amber-900/40 bg-amber-950/15 active:bg-amber-950/30">
+          <div className="flex items-center justify-between">
+            <p className="text-[12px] font-semibold uppercase tracking-widest text-amber-400/80">
+              Filtro {delDia.numero} · {delDia.nombre}
+            </p>
+            <span className="text-[12px] text-amber-400/60">ver ficha ›</span>
+          </div>
+          <p className="mt-2 text-[17px] italic leading-snug text-amber-100">{delDia.gatillo}</p>
+          <p className="mt-2 text-[13px] leading-relaxed text-amber-100/60">{delDia.alarma}</p>
+        </Tarjeta>
+      </button>
+
+      {almacen.estado.evaluaciones.length === 0 && (
+        <Tarjeta>
+          <p className="mb-2 text-[13px] font-medium uppercase tracking-wide text-zinc-400">Cómo se usa</p>
+          <ol className="space-y-2 text-[14px] leading-relaxed text-zinc-300">
+            <li>
+              <span className="font-semibold text-amber-300">1.</span> Llega algo con pretensión de verdad —
+              un video, un libro, una certeza propia.
+            </li>
+            <li>
+              <span className="font-semibold text-amber-300">2.</span> Tocas{' '}
+              <span className="text-zinc-100">Correr un material</span> y pasas los cinco filtros en orden.
+            </li>
+            <li>
+              <span className="font-semibold text-amber-300">3.</span> Si un filtro dispara alarma, el
+              material queda retenido hasta resolverse. Si no, sube de nivel de confianza.
+            </li>
+          </ol>
+        </Tarjeta>
+      )}
 
       <Boton variante="principal" onClick={onNuevo} className="w-full">
         <Plus size={17} className="mr-1.5 inline" /> Correr un material

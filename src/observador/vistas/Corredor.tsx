@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Plus, Trash2, X } from 'lucide-react';
 import {
   CAJONES,
@@ -42,8 +42,37 @@ export default function Corredor({
   const filtro = paso <= 5 ? FILTROS[paso] : null;
   const estadoActual = paso <= 5 ? resultado.estados[paso as FiltroId] : 'pendiente';
 
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [paso]);
+
+  // Un toque físico cuando un filtro pasa a alarma, para que no pase desapercibido.
+  const alarmaPrevia = useRef(estadoActual);
+  useEffect(() => {
+    if (estadoActual === 'alarma' && alarmaPrevia.current !== 'alarma') {
+      navigator.vibrate?.(120);
+    }
+    alarmaPrevia.current = estadoActual;
+  }, [estadoActual]);
+
+  // Deslizar a la izquierda/derecha cambia de paso; se ignora si el gesto es vertical.
+  const toque = useRef<{ x: number; y: number } | null>(null);
+  const alTocar = (e: React.TouchEvent) => {
+    toque.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+  const alSoltar = (e: React.TouchEvent) => {
+    if (!toque.current) return;
+    const dx = e.changedTouches[0].clientX - toque.current.x;
+    const dy = e.changedTouches[0].clientY - toque.current.y;
+    toque.current = null;
+    const objetivo = e.target as HTMLElement;
+    if (objetivo.closest('input, textarea')) return;
+    if (Math.abs(dx) < 64 || Math.abs(dy) > Math.abs(dx)) return;
+    setPaso((previo) => Math.min(6, Math.max(0, previo + (dx < 0 ? 1 : -1))));
+  };
+
   return (
-    <div className="pb-32">
+    <div className="pb-32" onTouchStart={alTocar} onTouchEnd={alSoltar}>
       {/* Cabecera del material */}
       <div className="sticky top-0 z-20 -mx-4 border-b border-zinc-900 bg-zinc-950/95 px-4 pb-3 pt-3 backdrop-blur">
         <div className="flex items-start gap-3">
@@ -65,30 +94,52 @@ export default function Corredor({
           </div>
         </div>
 
-        {/* Riel de filtros */}
-        <div className="mt-3 flex items-center gap-1.5">
+        {/* Riel de filtros: un círculo numerado por filtro, coloreado por su estado */}
+        <div className="mt-2 flex items-center justify-between">
           {([0, 1, 2, 3, 4, 5] as FiltroId[]).map((i) => {
-            const t = TONO[resultado.estados[i]];
+            const estado = resultado.estados[i];
+            const relleno =
+              estado === 'ok'
+                ? 'border-emerald-500/70 bg-emerald-500/15 text-emerald-300'
+                : estado === 'alarma'
+                  ? 'border-red-500/70 bg-red-500/15 text-red-300'
+                  : 'border-zinc-700 bg-zinc-900 text-zinc-500';
             return (
               <button
                 key={i}
                 type="button"
                 onClick={() => setPaso(i)}
-                aria-label={`Filtro ${i}`}
-                className={`h-1.5 flex-1 rounded-full ${t.punto} ${
-                  paso === i ? 'opacity-100 ring-2 ring-amber-400/60 ring-offset-2 ring-offset-zinc-950' : 'opacity-60'
-                }`}
-              />
+                aria-label={`Filtro ${i} · ${FILTROS[i].nombre}`}
+                aria-current={paso === i ? 'step' : undefined}
+                className="grid h-11 w-11 place-items-center"
+              >
+                <span
+                  className={`grid h-8 w-8 place-items-center rounded-full border text-[13px] font-semibold ${relleno} ${
+                    paso === i ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-zinc-950' : ''
+                  }`}
+                >
+                  {estado === 'ok' ? <Check size={14} /> : estado === 'alarma' ? '!' : i}
+                </span>
+              </button>
             );
           })}
           <button
             type="button"
             onClick={() => setPaso(6)}
-            aria-label="Cierre"
-            className={`h-1.5 w-6 rounded-full ${
-              resultado.cierreCompleto ? 'bg-amber-400' : 'bg-zinc-600'
-            } ${paso === 6 ? 'ring-2 ring-amber-400/60 ring-offset-2 ring-offset-zinc-950' : 'opacity-60'}`}
-          />
+            aria-label="Cierre y veredicto"
+            aria-current={paso === 6 ? 'step' : undefined}
+            className="grid h-11 w-11 place-items-center"
+          >
+            <span
+              className={`grid h-8 w-8 place-items-center rounded-full border text-[15px] ${
+                resultado.cierreCompleto
+                  ? 'border-amber-400/70 bg-amber-400/15 text-amber-300'
+                  : 'border-zinc-700 bg-zinc-900 text-zinc-500'
+              } ${paso === 6 ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-zinc-950' : ''}`}
+            >
+              ◎
+            </span>
+          </button>
         </div>
       </div>
 
@@ -125,7 +176,7 @@ export default function Corredor({
         </div>
 
         {filtro && estadoActual === 'alarma' && (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 space-y-2 sacudida">
             <Aviso tono="alarma">
               <span className="font-semibold">Alarma · </span>
               {filtro.alarma}
@@ -158,11 +209,11 @@ export default function Corredor({
             <ArrowLeft size={16} className="inline" />
           </Boton>
           <div className="flex-1 text-center text-[12px] text-zinc-500">
-            {paso <= 5 ? `${paso + 1} de 7` : 'Cierre'}
+            {paso <= 5 ? `Filtro ${paso} · ${FILTROS[paso].nombre}` : 'Cierre y veredicto'}
           </div>
           {paso < 6 ? (
             <Boton variante="principal" onClick={() => setPaso((p) => p + 1)}>
-              Siguiente <ArrowRight size={16} className="ml-1 inline" />
+              {paso === 5 ? 'Ver veredicto' : 'Siguiente'} <ArrowRight size={16} className="ml-1 inline" />
             </Boton>
           ) : (
             <Boton variante="principal" onClick={onSalir}>
