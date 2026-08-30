@@ -1,0 +1,1399 @@
+<title>Auditor de Costuras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap">
+
+<style>
+  :root {
+    --bg: #EDEDF2;
+    --surface: #F8F8FB;
+    --surface-2: #E3E3EC;
+    --ink: #16161F;
+    --ink-2: #545467;
+    --ink-3: #7B7B90;
+    --rule: #D1D1DE;
+    --rule-strong: #B6B6C8;
+    --accent: #3A34C4;
+    --accent-ink: #2B27A0;
+    --accent-soft: rgba(58, 52, 196, 0.09);
+    --bronze: #8A5A22;
+    --ok: #1F6A54;
+    --ok-soft: rgba(31, 106, 84, 0.10);
+    --warn: #9C6A08;
+    --warn-soft: rgba(156, 106, 8, 0.11);
+    --stop: #9E2B2B;
+    --stop-soft: rgba(158, 43, 43, 0.10);
+    --shadow: 0 1px 2px rgba(22, 22, 31, .06), 0 8px 24px -16px rgba(22, 22, 31, .28);
+
+    --serif: "Newsreader", Georgia, "Times New Roman", serif;
+    --cond: "IBM Plex Sans Condensed", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101018;
+      --surface: #181823;
+      --surface-2: #22222F;
+      --ink: #E8E8F1;
+      --ink-2: #A3A3B8;
+      --ink-3: #7E7E94;
+      --rule: #2E2E3E;
+      --rule-strong: #43435A;
+      --accent: #9A94FF;
+      --accent-ink: #B3AEFF;
+      --accent-soft: rgba(154, 148, 255, 0.13);
+      --bronze: #CB9A5E;
+      --ok: #56C0A0;
+      --ok-soft: rgba(86, 192, 160, 0.13);
+      --warn: #E0A93C;
+      --warn-soft: rgba(224, 169, 60, 0.13);
+      --stop: #E77E78;
+      --stop-soft: rgba(231, 126, 120, 0.13);
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -18px rgba(0, 0, 0, .9);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #101018;
+    --surface: #181823;
+    --surface-2: #22222F;
+    --ink: #E8E8F1;
+    --ink-2: #A3A3B8;
+    --ink-3: #7E7E94;
+    --rule: #2E2E3E;
+    --rule-strong: #43435A;
+    --accent: #9A94FF;
+    --accent-ink: #B3AEFF;
+    --accent-soft: rgba(154, 148, 255, 0.13);
+    --bronze: #CB9A5E;
+    --ok: #56C0A0;
+    --ok-soft: rgba(86, 192, 160, 0.13);
+    --warn: #E0A93C;
+    --warn-soft: rgba(224, 169, 60, 0.13);
+    --stop: #E77E78;
+    --stop-soft: rgba(231, 126, 120, 0.13);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -18px rgba(0, 0, 0, .9);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 500; }
+
+  .eyebrow {
+    font-family: var(--cond);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* ---------- header ---------- */
+
+  .masthead {
+    padding: 72px 0 40px;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    gap: 20px;
+  }
+
+  .masthead h1 {
+    font-size: clamp(40px, 7vw, 68px);
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+    font-weight: 400;
+    font-variation-settings: "opsz" 60;
+  }
+
+  .masthead .lede {
+    max-width: 62ch;
+    color: var(--ink-2);
+    font-size: 19px;
+  }
+
+  .masthead .lede em { color: var(--ink); font-style: italic; }
+
+  .rule-banner {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 14px;
+    padding: 16px 18px;
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .rule-banner .tag {
+    font-family: var(--cond);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+
+  .rule-banner p { margin: 0; font-size: 17px; }
+
+  /* ---------- section scaffolding ---------- */
+
+  section { padding-top: 64px; }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 28px;
+  }
+
+  .sec-head h2 {
+    font-size: 27px;
+    letter-spacing: -0.012em;
+    flex: 1 1 auto;
+  }
+
+  .sec-head .note {
+    font-family: var(--cond);
+    font-size: 13px;
+    color: var(--ink-3);
+    text-align: right;
+  }
+
+  .prose { max-width: 66ch; color: var(--ink-2); }
+  .prose strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- instrument ---------- */
+
+  .instrument {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+
+  @media (max-width: 860px) {
+    .instrument { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+  }
+
+  .panel-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .panel-body { padding: 22px 20px; display: grid; gap: 26px; }
+
+  .field { display: grid; gap: 8px; }
+
+  .field > label, .field-label {
+    font-family: var(--cond);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  input[type="text"] {
+    width: 100%;
+    font-family: var(--serif);
+    font-size: 17px;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 10px 12px;
+  }
+
+  input[type="text"]::placeholder { color: var(--ink-3); opacity: .8; }
+  input[type="text"]:focus-visible,
+  select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* level selector */
+
+  .levels { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .levels input { position: absolute; opacity: 0; pointer-events: none; }
+
+  .levels label {
+    cursor: pointer;
+    display: grid;
+    gap: 1px;
+    padding: 8px 12px 9px;
+    min-width: 92px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    background: var(--bg);
+    transition: border-color .12s, background .12s;
+  }
+
+  .levels label .n {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+  }
+
+  .levels label .t {
+    font-family: var(--cond);
+    font-size: 12px;
+    color: var(--ink-3);
+    letter-spacing: .02em;
+  }
+
+  .levels label:hover { border-color: var(--ink-3); }
+  .levels input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .levels input:checked + label {
+    background: var(--tone-soft, var(--accent-soft));
+    border-color: var(--tone, var(--accent));
+    box-shadow: inset 0 0 0 1px var(--tone, var(--accent));
+  }
+
+  .levels input:checked + label .n,
+  .levels input:checked + label .t { color: var(--tone, var(--accent)); }
+
+  .lv1 { --tone: var(--ok); --tone-soft: var(--ok-soft); }
+  .lv2 { --tone: var(--accent); --tone-soft: var(--accent-soft); }
+  .lv3 { --tone: var(--warn); --tone-soft: var(--warn-soft); }
+  .lv4, .lv5 { --tone: var(--stop); --tone-soft: var(--stop-soft); }
+
+  /* filter questions */
+
+  .filters { display: grid; gap: 20px; }
+
+  .filter {
+    display: grid;
+    gap: 9px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--rule);
+  }
+
+  .filter:first-child { padding-top: 0; border-top: 0; }
+
+  .filter h3 {
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .filter h3 .idx {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .filter .q {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 15.5px;
+    line-height: 1.5;
+    max-width: 60ch;
+  }
+
+  .filter .q cite { font-style: italic; color: var(--ink); }
+
+  .choices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 3px; }
+
+  .choices input { position: absolute; opacity: 0; pointer-events: none; }
+
+  .choices label {
+    cursor: pointer;
+    font-family: var(--cond);
+    font-size: 13.5px;
+    letter-spacing: .01em;
+    padding: 6px 11px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--ink-2);
+    transition: border-color .12s, background .12s, color .12s;
+  }
+
+  .choices label:hover { border-color: var(--ink-3); color: var(--ink); }
+  .choices input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .choices input:checked + label {
+    background: var(--tone-soft);
+    border-color: var(--tone);
+    color: var(--tone);
+    font-weight: 600;
+  }
+
+  .c-ok { --tone: var(--ok); --tone-soft: var(--ok-soft); }
+  .c-mid { --tone: var(--warn); --tone-soft: var(--warn-soft); }
+  .c-bad { --tone: var(--stop); --tone-soft: var(--stop-soft); }
+
+  /* self-audit toggle */
+
+  .firewall {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border-radius: 4px;
+  }
+
+  .firewall input { margin: 4px 0 0; accent-color: var(--accent); width: 16px; height: 16px; }
+  .firewall label { font-size: 15.5px; cursor: pointer; }
+  .firewall .sub { display: block; color: var(--ink-2); font-size: 14.5px; margin-top: 2px; }
+
+  /* ---------- verdict ---------- */
+
+  .verdict-col { position: sticky; top: 20px; display: grid; gap: 20px; }
+
+  @media (max-width: 860px) { .verdict-col { position: static; } }
+
+  .verdict {
+    padding: 22px 20px;
+    display: grid;
+    gap: 14px;
+    border-top: 4px solid var(--tone, var(--rule-strong));
+  }
+
+  .verdict .stamp {
+    font-family: var(--cond);
+    font-weight: 700;
+    font-size: clamp(22px, 3.4vw, 28px);
+    letter-spacing: .01em;
+    line-height: 1.1;
+    color: var(--tone, var(--ink-3));
+    text-transform: uppercase;
+  }
+
+  .verdict .say { margin: 0; font-size: 16.5px; color: var(--ink); }
+  .verdict .why { margin: 0; font-size: 14.5px; color: var(--ink-2); }
+
+  .v-ok { --tone: var(--ok); }
+  .v-cond { --tone: var(--accent); }
+  .v-declare { --tone: var(--warn); }
+  .v-stop { --tone: var(--stop); }
+  .v-none { --tone: var(--rule-strong); }
+
+  .gauge { display: grid; gap: 7px; }
+
+  .gauge-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--cond);
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .gauge-row b { font-family: var(--mono); font-weight: 600; color: var(--ink); letter-spacing: 0; }
+
+  .bar { height: 6px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--tone, var(--rule-strong)); transition: width .25s ease; }
+
+  .flags { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+
+  .flags li {
+    font-size: 14.5px;
+    color: var(--ink-2);
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.45;
+  }
+
+  .flags li::before {
+    content: "";
+    position: absolute;
+    left: 2px; top: 8px;
+    width: 6px; height: 6px;
+    background: var(--stop);
+    border-radius: 1px;
+  }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  button {
+    font-family: var(--cond);
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    padding: 8px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--rule-strong);
+    background: var(--bg);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background .12s, border-color .12s;
+  }
+
+  button:hover:not(:disabled) { border-color: var(--ink-3); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  :root[data-theme="dark"] button.primary { color: #14141C; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) button.primary { color: #14141C; }
+  }
+
+  button.primary:hover:not(:disabled) { filter: brightness(1.08); }
+
+  /* ---------- ledger ---------- */
+
+  .ledger-wrap { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+
+  th {
+    font-family: var(--cond);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-align: left;
+    padding: 0 12px 8px 0;
+    border-bottom: 1px solid var(--rule-strong);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 11px 12px 11px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  td.num { font-family: var(--mono); font-size: 13.5px; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--cond);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--tone-soft, var(--surface-2));
+    color: var(--tone, var(--ink-2));
+    white-space: nowrap;
+  }
+
+  .empty {
+    padding: 26px 0 6px;
+    color: var(--ink-3);
+    font-size: 15.5px;
+    max-width: 60ch;
+  }
+
+  .drop {
+    background: none;
+    border: 0;
+    padding: 2px 6px;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 15px;
+  }
+
+  .drop:hover { color: var(--stop); }
+
+  #exportBox {
+    width: 100%;
+    min-height: 150px;
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 12px;
+  }
+
+  /* ---------- levels map ---------- */
+
+  .map { display: grid; gap: 0; }
+
+  .lvrow {
+    display: grid;
+    grid-template-columns: 108px minmax(0, 1fr);
+    gap: 4px 22px;
+    padding: 18px 0 18px 16px;
+    border-top: 1px solid var(--rule);
+    border-left: 3px solid var(--tone);
+  }
+
+  .lvrow:last-child { border-bottom: 1px solid var(--rule); }
+
+  @media (max-width: 660px) { .lvrow { grid-template-columns: minmax(0, 1fr); } }
+
+  .lvrow .k { display: grid; gap: 2px; align-content: start; }
+  .lvrow .k .n { font-family: var(--mono); font-size: 21px; font-weight: 600; color: var(--tone); line-height: 1; }
+  .lvrow .k .t { font-family: var(--cond); font-size: 13px; color: var(--ink-2); letter-spacing: .02em; }
+  .lvrow .c { color: var(--ink-2); font-size: 16px; }
+  .lvrow .c b { color: var(--ink); font-weight: 500; }
+  .lvrow .c i { font-style: italic; color: var(--ink-3); }
+
+  /* ---------- the column ---------- */
+
+  .chain { display: grid; gap: 0; max-width: 780px; }
+
+  .link {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px 18px;
+    align-items: center;
+    padding: 13px 0 13px 34px;
+    position: relative;
+  }
+
+  .link::before {
+    content: "";
+    position: absolute;
+    left: 11px; top: 0; bottom: 0;
+    width: 1px;
+    background: var(--rule-strong);
+  }
+
+  .link::after {
+    content: "";
+    position: absolute;
+    left: 7px; top: 50%;
+    width: 9px; height: 9px;
+    margin-top: -4.5px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--accent);
+  }
+
+  .link:first-child::before { top: 50%; }
+  .link:last-child::before { bottom: 50%; }
+
+  .link .txt { font-size: 16.5px; }
+  .link .txt small { display: block; color: var(--ink-3); font-size: 14px; font-style: italic; }
+
+  .link .mark {
+    font-family: var(--cond);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+    color: var(--tone, var(--ok));
+    white-space: nowrap;
+  }
+
+  .link.cuerda { --tone: var(--warn); }
+  .link.cuerda::after { border-color: var(--warn); }
+
+  .gap-link {
+    margin: 6px 0;
+    padding: 18px 20px 18px 34px;
+    position: relative;
+    background: repeating-linear-gradient(
+      135deg,
+      var(--stop-soft),
+      var(--stop-soft) 7px,
+      transparent 7px,
+      transparent 14px
+    );
+    border: 1px dashed var(--stop);
+    border-radius: 4px;
+  }
+
+  .gap-link .hd {
+    font-family: var(--cond);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--stop);
+  }
+
+  .gap-link p { margin: 6px 0 0; font-size: 16px; max-width: 54ch; }
+
+  .aside {
+    margin-top: 26px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    max-width: 780px;
+  }
+
+  .aside p { margin: 0; font-size: 16.5px; }
+  .aside p + p { margin-top: 10px; }
+  .aside b { font-weight: 600; }
+
+  /* ---------- cards ---------- */
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+
+  .card {
+    padding: 18px 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    display: grid;
+    gap: 7px;
+    align-content: start;
+  }
+
+  .card h3 { font-size: 19px; }
+  .card p { margin: 0; font-size: 15.5px; color: var(--ink-2); line-height: 1.5; }
+
+  .card.stop { border-left: 3px solid var(--stop); }
+  .card.lever { border-left: 3px solid var(--ok); }
+
+  .card .src {
+    font-family: var(--cond);
+    font-size: 11.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .fineprint { margin-top: 18px; font-size: 14.5px; color: var(--ink-3); font-style: italic; }
+
+  /* ---------- reading route ---------- */
+
+  .route td:first-child { font-family: var(--mono); color: var(--accent); font-weight: 600; width: 34px; }
+  .route .work { font-size: 16.5px; }
+  .route .work b { font-weight: 600; }
+  .route .work i { color: var(--ink-2); }
+  .route .why { color: var(--ink-2); font-size: 15px; }
+  .route .w { font-family: var(--cond); font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+
+  /* ---------- close ---------- */
+
+  .closing {
+    margin-top: 72px;
+    padding: 44px 0 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .closing blockquote {
+    margin: 0 0 18px;
+    font-size: clamp(23px, 3.6vw, 33px);
+    line-height: 1.25;
+    letter-spacing: -0.014em;
+    max-width: 20ch;
+    font-weight: 300;
+    font-variation-settings: "opsz" 48;
+  }
+
+  .closing p { margin: 0; max-width: 62ch; color: var(--ink-2); }
+
+  .colophon {
+    margin-top: 40px;
+    font-family: var(--cond);
+    font-size: 12.5px;
+    color: var(--ink-3);
+    letter-spacing: .04em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="eyebrow">Gradiente · tiempo · consciencia — síntesis del 29 ago 2026</div>
+    <h1>Auditor de costuras</h1>
+    <p class="lede">Casi nada de ese material es accionable como contenido. Lo que transfiere es <em>método</em>. Esta página convierte los cuatro filtros en un instrumento: le pasas una afirmación, y sale un veredicto sobre si puedes colgar una decisión de ella.</p>
+    <div class="rule-banner">
+      <span class="tag">Regla operativa</span>
+      <p>Nunca apoyar una conclusión que te importe en un eslabón de nivel ≥ 3. Si se cae el eslabón, se cae la conclusión.</p>
+    </div>
+  </header>
+
+  <section id="instrumento">
+    <div class="sec-head">
+      <h2>El instrumento</h2>
+      <div class="note">Cinco filtros · un nivel · un veredicto</div>
+    </div>
+
+    <div class="instrument">
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="eyebrow">Material bajo prueba</span>
+          <button type="button" id="resetBtn">Limpiar</button>
+        </div>
+        <div class="panel-body">
+
+          <div class="field">
+            <label for="claim">Afirmación que sostendría la decisión</label>
+            <input type="text" id="claim" placeholder="p. ej. «la anestesia actúa sobre microtúbulos»" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="source">Fuente o autor</label>
+            <input type="text" id="source" placeholder="p. ej. Penrose–Hameroff, Orch-OR" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <span class="field-label">Nivel del eslabón</span>
+            <div class="levels" id="levels" role="radiogroup" aria-label="Nivel del eslabón"></div>
+          </div>
+
+          <div class="filters" id="filters"></div>
+
+          <div class="firewall">
+            <input type="checkbox" id="own">
+            <label for="own">El material es mío
+              <span class="sub">El cortafuegos hacia adentro: sube el listón un punto. El sesgo de confirmación opera más fuerte sobre lo que escribiste tú.</span>
+            </label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="verdict-col">
+        <div class="panel verdict v-none" id="verdict">
+          <div class="stamp" id="stamp">Sin veredicto</div>
+          <p class="say" id="say">Elige un nivel y responde los cinco filtros.</p>
+          <p class="why" id="why"></p>
+          <div class="gauge">
+            <div class="gauge-row"><span>Carga de costura</span><b id="scoreTxt">— / 10</b></div>
+            <div class="bar"><span id="bar" style="width:0%"></span></div>
+          </div>
+          <ul class="flags" id="flags"></ul>
+          <div class="actions">
+            <button type="button" class="primary" id="saveBtn" disabled>Registrar en el ledger</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="ledger">
+    <div class="sec-head">
+      <h2>Ledger de costuras</h2>
+      <div class="note">Se guarda solo en este navegador</div>
+    </div>
+    <p class="prose">El Evidence Ledger clasifica fuentes; no clasifica transiciones. Un documento puede tener todas sus fuentes en A–B y aun así colapsar en el punto donde cambia el estatus epistémico. Esto registra ese punto.</p>
+    <div class="ledger-wrap">
+      <table id="ledgerTable" hidden>
+        <thead>
+          <tr>
+            <th>Afirmación</th>
+            <th>Fuente</th>
+            <th>Niv.</th>
+            <th>Carga</th>
+            <th>Veredicto</th>
+            <th>Fecha</th>
+            <th><span class="eyebrow">—</span></th>
+          </tr>
+        </thead>
+        <tbody id="ledgerBody"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="ledgerEmpty">Todavía no hay entradas. Empieza por un espécimen inofensivo: un capítulo de <i>Stalking the Wild Pendulum</i>. Si los filtros marcan el cruce donde el balistocardiograma se vuelve cosmología, están bien calibrados — y sin dinero ni firma de por medio.</p>
+    <div class="actions" style="margin-top:20px">
+      <button type="button" id="exportBtn" disabled>Copiar como tabla</button>
+      <button type="button" id="clearBtn" disabled>Vaciar ledger</button>
+    </div>
+    <textarea id="exportBox" hidden readonly aria-label="Ledger exportado en Markdown"></textarea>
+  </section>
+
+  <section id="mapa">
+    <div class="sec-head">
+      <h2>Mapa de niveles</h2>
+      <div class="note">La herramienta de referencia</div>
+    </div>
+    <div class="map">
+      <div class="lvrow lv1">
+        <div class="k"><span class="n">1</span><span class="t">Establecido</span></div>
+        <div class="c">Feynman cap. 5 · Schrödinger · Prigogine · quimiosmosis <b>(Mitchell)</b> · endosimbiosis <b>(Margulis)</b> · WCH de Penrose · relatividad de la simultaneidad · presente especioso (James) · circadiano (Nobel 2017) · costo energético del cerebro (Attwell–Laughlin)</div>
+      </div>
+      <div class="lvrow lv2">
+        <div class="k"><span class="n">2</span><span class="t">Minoritario, falsable</span></div>
+        <div class="c">Colapso Penrose–Diósi <i>(versión sin parámetros ya excluida)</i> · retrocausalidad (Price, Wharton–Argaman, formalismo de dos vectores) · Wheeler–DeWitt / problema del tiempo · energía-por-gen de Lane <i>(disputado por Lynch &amp; Marinov 2015)</i> · Complejo I como diana anestésica</div>
+      </div>
+      <div class="lvrow lv3">
+        <div class="k"><span class="n">3</span><span class="t">Marginal en el campo</span></div>
+        <div class="c">Cosmología Cíclica Conforme · puntos de Hawking · Barbour</div>
+      </div>
+      <div class="lvrow lv4">
+        <div class="k"><span class="n">4</span><span class="t">Rechazado</span></div>
+        <div class="c">Orch-OR / microtúbulos</div>
+      </div>
+      <div class="lvrow lv5">
+        <div class="k"><span class="n">5</span><span class="t">Sin base</span></div>
+        <div class="c">Bentov · Hoffman–Hermansson · Figueroa · fotosíntesis humana</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="arquitectura">
+    <div class="sec-head">
+      <h2>El detector de arquitectura</h2>
+      <div class="note">Cinco especímenes · una sola forma</div>
+    </div>
+    <p class="prose" style="margin-bottom:24px">La forma es siempre la misma: <b>credencial real → resultado técnico real → transición no marcada → afirmación no falsable.</b> Las credenciales de estos cinco escalan tres órdenes de magnitud y el mecanismo no cambia. Por eso el caso Penrose es el más valioso: la costura está dentro de la obra de un laureado, y es visible.</p>
+    <div class="ledger-wrap">
+      <table>
+        <thead>
+          <tr><th>Espécimen</th><th>Credencial</th><th>Resultado real</th><th>Salto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Bentov</td><td>Catéter cardíaco</td><td>Balistocardiograma</td><td>Cosmología toroidal</td></tr>
+          <tr><td>Hoffman / Hermansson</td><td>Teorema publicado</td><td>Fitness Beats Truth</td><td>Física desde cadenas de Markov</td></tr>
+          <tr><td>Figueroa</td><td>—</td><td>(SciELO prestada)</td><td>Eclipse / línea temporal</td></tr>
+          <tr><td>Solís</td><td>Médico, patentes</td><td>Contactos melanosoma–mitocondria</td><td>Fotosíntesis humana</td></tr>
+          <tr><td><b>Penrose</b></td><td><b>Nobel</b></td><td><b>WCH, teoremas de singularidad</b></td><td><b>CCC, Orch-OR</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="aside">
+      <p><b>Variante nueva.</b> La costura puede estar <b>entre fuentes</b> en vez de dentro de un autor: SciELO aporta credencial, YouTube aporta afirmaciones, el sintetizador las funde y la juntura desaparece del output.</p>
+      <p>Contra esto, la regla es una sola: <b>auditar el corpus antes que la síntesis.</b></p>
+    </div>
+  </section>
+
+  <section id="columna">
+    <div class="sec-head">
+      <h2>La columna</h2>
+      <div class="note">Cada eslabón: mecanismo, medición, literatura</div>
+    </div>
+    <div class="chain">
+      <div class="link"><div class="txt">Condición inicial de baja entropía<small>Feynman marca el hueco; Penrose lo cuantifica</small></div><div class="mark">Acero</div></div>
+      <div class="link"><div class="txt">Gradientes disponibles en el universo</div><div class="mark">Acero</div></div>
+      <div class="link"><div class="txt">Energía <b>disponible</b> ≠ energía<small>la distinción de la toalla</small></div><div class="mark">Acero</div></div>
+      <div class="link"><div class="txt">Estructuras disipativas<small>Schrödinger 1944 · Prigogine 1977</small></div><div class="mark">Acero</div></div>
+      <div class="link"><div class="txt">Gradiente de protones — 30 millones de V/m a través de 5 nm</div><div class="mark">Acero</div></div>
+      <div class="link"><div class="txt">Mitocondria: la máquina que ejecuta el principio</div><div class="mark">Acero</div></div>
+      <div class="link cuerda"><div class="txt">Eucariogénesis: ~10⁵× más energía por gen<small>Lane — disputado por Lynch &amp; Marinov 2015</small></div><div class="mark">Cuerda</div></div>
+      <div class="link"><div class="txt">Cerebro: 20 % del presupuesto, gastado en <b>mantener gradientes iónicos</b></div><div class="mark">Acero</div></div>
+      <div class="gap-link">
+        <div class="hd">Hueco</div>
+        <p>El problema difícil (Chalmers 1995). La bioenergética explica las <b>condiciones</b> de la consciencia, nunca su <b>contenido</b>. Nadie sabe qué hay aquí.</p>
+      </div>
+      <div class="link"><div class="txt">Experiencia</div><div class="mark" style="--tone:var(--ink-3)">Sin puente</div></div>
+    </div>
+    <div class="aside">
+      <p><b>El punto de mayor densidad conceptual:</b> el cerebro gasta su energía en la misma moneda que la mitocondria produce — diferencial electroquímico a través de una membrana. Producción y consumo hablan el mismo idioma físico a lo largo de toda la cadena.</p>
+    </div>
+  </section>
+
+  <section id="palancas">
+    <div class="sec-head">
+      <h2>Lo que sí es accionable</h2>
+      <div class="note">Breve por honestidad, no por omisión</div>
+    </div>
+    <div class="cards">
+      <div class="card lever">
+        <div class="src">Nobel 2017</div>
+        <h3>Luz y ritmo circadiano</h3>
+        <p>Luz natural temprano en el día, oscuridad de noche. La única palanca sólida sobre función mitocondrial que no requiere comprar nada — y la ciencia real que Figueroa y Solís usan como plataforma de despegue.</p>
+      </div>
+      <div class="card lever">
+        <div class="src">Biogénesis mitocondrial</div>
+        <h3>Ejercicio</h3>
+        <p>El estímulo mejor documentado. Ya lo haces.</p>
+      </div>
+      <div class="card lever">
+        <div class="src">Acoplado a lo anterior</div>
+        <h3>Sueño</h3>
+        <p>Directamente acoplado a la luz y al ejercicio. No es una cuarta palanca: es la misma.</p>
+      </div>
+    </div>
+    <p class="fineprint">El campo mitocondrial tiene casi ninguna intervención validada más allá de estas tres. Que sean baratas, viejas y aburridas es precisamente por qué existe un mercado de suplementos encima. Nada aquí es consejo médico; cualquier cosa personal va con tu médico.</p>
+  </section>
+
+  <section id="nohacer">
+    <div class="sec-head">
+      <h2>Cuatro cosas que no hacer</h2>
+      <div class="note">Los vectores de daño conocidos</div>
+    </div>
+    <div class="cards">
+      <div class="card stop">
+        <h3>No usar Penrose nivel 3–4 para concluir sobre IA</h3>
+        <p>Apoyar una conclusión que te importa en Orch-OR es el mismo movimiento que le criticamos a Bentov. Y la anestesia —el objetivo empírico de Penrose–Hameroff— hoy tiene mejor explicación mitocondrial que microtubular.</p>
+      </div>
+      <div class="card stop">
+        <h3>No fundir universo bloque con «eterno ahora»</h3>
+        <p>El bloque dice que la distinción presente/futuro no es objetiva. No dice que todo ocurra ahora en ningún sentido vivible. Es el movimiento más rentable del género y ya lo ves venir.</p>
+      </div>
+      <div class="card stop">
+        <h3>No hacer rehén el compromiso metafísico de física en disputa</h3>
+        <p>Si depende de CCC o de Penrose–Diósi, se cae con ellos. Declarado como lo que es, se aguanta mejor que disfrazado de inferencia.</p>
+      </div>
+      <div class="card stop">
+        <h3>No dejar que este proyecto genere protocolos de salud</h3>
+        <p>Es su vector de daño natural, y ya viste por dónde entra.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="ruta">
+    <div class="sec-head">
+      <h2>La lista corta, en orden</h2>
+      <div class="note">1 → 2 → 3 es la columna en secuencia</div>
+    </div>
+    <div class="ledger-wrap">
+      <table class="route">
+        <thead><tr><th>#</th><th>Obra</th><th>Por qué</th><th>Peso</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td class="work"><b>Feynman</b>, <i>The Character of Physical Law</i>, cap. 5</td><td class="why">El cimiento. Y el modelo de cómo se marca una costura.</td><td class="w">30 pp</td></tr>
+          <tr><td>2</td><td class="work"><b>Schrödinger</b>, <i>¿Qué es la vida?</i> (1944)</td><td class="why">El puente física → biología. Fundó la biología molecular en ~90 páginas.</td><td class="w">Corto</td></tr>
+          <tr><td>3</td><td class="work"><b>Lane</b>, <i>The Vital Question</i> (2015)</td><td class="why">El pago: por qué existe complejidad. Leer con el caveat Lynch–Marinov.</td><td class="w">Libro</td></tr>
+          <tr><td>4</td><td class="work"><b>Price</b>, <i>Time's Arrow and Archimedes' Point</i> (1996)</td><td class="why">El único que deja método aplicable fuera del tema. El más difícil.</td><td class="w">Libro</td></tr>
+          <tr><td>5</td><td class="work"><b>Picard</b> — Picard &amp; McEwen, Picard &amp; Sandi</td><td class="why">La frontera legítima de mente ↔ mitocondria. La versión seria de lo que prometen Figueroa y Solís. Consulta, no lectura lineal.</td><td class="w">Papers</td></tr>
+          <tr><td>6</td><td class="work">Revisión <b>SciELO</b> (ya la tienes)</td><td class="why">Referencia de medicina mitocondrial. La única fuente aprovechable de ese zip.</td><td class="w">Referencia</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="closing">
+    <blockquote>¿Cómo un gradiente electroquímico se convierte en algo que se siente como algo?</blockquote>
+    <p>Nadie lo sabe. Ni Penrose, ni Tononi, ni Chalmers. Lo que ganaste no es una respuesta — es la capacidad de distinguir a quien está trabajando en el hueco de quien lo está tapando. Ese es el rendimiento, y es real.</p>
+    <div class="colophon">Derivado de «Síntesis práctica — gradiente, tiempo y consciencia» · estudio personal, sin negocios · 29 ago 2026</div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var LEVELS = [
+    { n: 1, t: "Establecido" },
+    { n: 2, t: "Falsable" },
+    { n: 3, t: "Marginal" },
+    { n: 4, t: "Rechazado" },
+    { n: 5, t: "Sin base" }
+  ];
+
+  var FILTERS = [
+    {
+      id: "price",
+      name: "Punto arquimediano",
+      src: "Price",
+      q: "¿Aplica las mismas reglas a los dos lados de la comparación, o hay una asimetría que se da por supuesta?",
+      opts: [
+        { l: "Simétrico y justificado", v: 0 },
+        { l: "Asimetría sin justificar", v: 1 },
+        { l: "Doble estándar evidente", v: 2 }
+      ],
+      flag: "Doble estándar sin justificar: la conclusión depende de una asimetría que nadie defendió."
+    },
+    {
+      id: "seam",
+      name: "Marcar la costura",
+      src: "Feynman",
+      q: "¿Dice en frases distintas «esto lo dicen las leyes» y «esto hay que suponerlo»? Cada eslabón, ¿es acero o cuerda?",
+      opts: [
+        { l: "Acero y cuerda separados", v: 0 },
+        { l: "La costura se adivina", v: 1 },
+        { l: "Todo se presenta como acero", v: 2 }
+      ],
+      flag: "La costura no está marcada: el supuesto viaja disfrazado de ley."
+    },
+    {
+      id: "pred",
+      name: "Test de predicción",
+      src: "Feynman, versión afilada",
+      q: "Si esta historia es cierta, ¿qué debería encontrar en un lugar donde todavía no he mirado?",
+      opts: [
+        { l: "Predicción concreta y buscable", v: 0 },
+        { l: "Vaga o construida post hoc", v: 1 },
+        { l: "Ninguna: relato no comprobable", v: 2 }
+      ],
+      flag: "Sin predicción comprobable: es relato, no hipótesis. Este es el filtro que más pesa."
+    },
+    {
+      id: "arch",
+      name: "Detector de arquitectura",
+      src: "credencial → resultado → salto",
+      q: "Credencial real, resultado técnico real — y luego, ¿la transición hacia la afirmación grande está marcada?",
+      opts: [
+        { l: "Sin salto de dominio", v: 0 },
+        { l: "Salto marcado y acotado", v: 1 },
+        { l: "Salto no marcado a lo no falsable", v: 2 }
+      ],
+      flag: "Salto no marcado: la credencial está avalando un dominio en el que no se ganó."
+    },
+    {
+      id: "corpus",
+      name: "Corpus antes que síntesis",
+      src: "la variante del zip",
+      q: "¿Puedes auditar cada fuente por separado, o la juntura ya desapareció en el output del sintetizador?",
+      opts: [
+        { l: "Corpus verificado pieza por pieza", v: 0 },
+        { l: "Fuentes mezcladas, juntura borrosa", v: 1 },
+        { l: "Solo tienes la síntesis", v: 2 }
+      ],
+      flag: "Corpus sin auditar: la credencial la pone una fuente y la afirmación otra."
+    }
+  ];
+
+  var VERDICTS = {
+    apoyo: {
+      rank: 3, cls: "v-ok", stamp: "Puedes apoyarte",
+      say: "El eslabón aguanta el peso de una decisión."
+    },
+    condicional: {
+      rank: 2, cls: "v-cond", stamp: "Apoyo condicional",
+      say: "Úsalo declarando la disputa, y nunca como eslabón único de la cadena."
+    },
+    declarar: {
+      rank: 1, cls: "v-declare", stamp: "Declarar, no apoyar",
+      say: "Dilo como compromiso propio, no como inferencia. Nada que te importe puede depender de esto."
+    },
+    nousar: {
+      rank: 0, cls: "v-stop", stamp: "Fuera de la cadena",
+      say: "No lo pongas donde sostenga una conclusión. Si se cae, se lleva todo lo que cuelgue de él."
+    }
+  };
+
+  var ORDER = ["nousar", "declarar", "condicional", "apoyo"];
+  var STORE_KEY = "auditor-costuras-v1";
+
+  var state = { level: null, answers: {}, own: false };
+  var ledger = [];
+
+  /* ---------- build the form ---------- */
+
+  var levelsEl = document.getElementById("levels");
+  LEVELS.forEach(function (lv) {
+    var input = document.createElement("input");
+    input.type = "radio";
+    input.name = "level";
+    input.id = "lv-" + lv.n;
+    input.value = String(lv.n);
+    var label = document.createElement("label");
+    label.className = "lv" + lv.n;
+    label.setAttribute("for", input.id);
+    label.innerHTML = '<span class="n">Nivel ' + lv.n + '</span><span class="t">' + lv.t + "</span>";
+    input.addEventListener("change", function () {
+      state.level = lv.n;
+      render();
+    });
+    levelsEl.appendChild(input);
+    levelsEl.appendChild(label);
+  });
+
+  var filtersEl = document.getElementById("filters");
+  FILTERS.forEach(function (f, i) {
+    var wrap = document.createElement("div");
+    wrap.className = "filter";
+    var head = document.createElement("h3");
+    head.innerHTML = '<span class="idx">0' + (i + 1) + "</span>" + f.name;
+    var q = document.createElement("p");
+    q.className = "q";
+    q.innerHTML = f.q + ' <cite>— ' + f.src + "</cite>";
+    var choices = document.createElement("div");
+    choices.className = "choices";
+    choices.setAttribute("role", "radiogroup");
+    choices.setAttribute("aria-label", f.name);
+
+    f.opts.forEach(function (o, j) {
+      var input = document.createElement("input");
+      input.type = "radio";
+      input.name = f.id;
+      input.id = f.id + "-" + j;
+      var label = document.createElement("label");
+      label.className = ["c-ok", "c-mid", "c-bad"][j];
+      label.setAttribute("for", input.id);
+      label.textContent = o.l;
+      input.addEventListener("change", function () {
+        state.answers[f.id] = o.v;
+        render();
+      });
+      choices.appendChild(input);
+      choices.appendChild(label);
+    });
+
+    wrap.appendChild(head);
+    wrap.appendChild(q);
+    wrap.appendChild(choices);
+    filtersEl.appendChild(wrap);
+  });
+
+  var ownEl = document.getElementById("own");
+  ownEl.addEventListener("change", function () {
+    state.own = ownEl.checked;
+    render();
+  });
+
+  /* ---------- verdict logic ---------- */
+
+  function evaluate() {
+    var answered = FILTERS.filter(function (f) {
+      return typeof state.answers[f.id] === "number";
+    });
+    var complete = state.level !== null && answered.length === FILTERS.length;
+
+    var raw = answered.reduce(function (sum, f) { return sum + state.answers[f.id]; }, 0);
+    var load = raw + (state.own ? 1 : 0);
+
+    if (!complete) {
+      return { complete: false, load: load, raw: raw, missing: FILTERS.length - answered.length, flags: [] };
+    }
+
+    var byLevel = state.level >= 4 ? "nousar" : state.level === 3 ? "declarar" : state.level === 2 ? "condicional" : "apoyo";
+    var byLoad = load >= 8 ? "nousar" : load >= 5 ? "declarar" : load >= 2 ? "condicional" : "apoyo";
+    var verdict = ORDER[Math.min(ORDER.indexOf(byLevel), ORDER.indexOf(byLoad))];
+
+    var flags = FILTERS.filter(function (f) { return state.answers[f.id] === 2; })
+      .map(function (f) { return f.flag; });
+
+    if (state.answers.pred === 1) {
+      flags.push("La predicción es vaga: afílala hasta que nombre un lugar concreto donde mirar.");
+    }
+    if (state.own) {
+      flags.push("Material propio: es el más difícil de auditar. El listón sube un punto por eso.");
+    }
+
+    var why;
+    if (ORDER.indexOf(byLevel) < ORDER.indexOf(byLoad)) {
+      why = "Lo limita el nivel " + state.level + ", no los filtros. " +
+        (state.level >= 4 ? "Nada de nivel 4–5 entra en una cadena." : "La regla operativa cierra el paso en nivel ≥ 3.");
+    } else if (ORDER.indexOf(byLoad) < ORDER.indexOf(byLevel)) {
+      why = "Lo limitan los filtros, no el nivel. La fuente puede ser sólida y el argumento aun así tener costuras sin marcar.";
+    } else {
+      why = "Nivel y filtros coinciden en el mismo techo.";
+    }
+
+    return { complete: true, verdict: verdict, load: load, raw: raw, flags: flags, why: why, missing: 0 };
+  }
+
+  /* ---------- render ---------- */
+
+  var verdictEl = document.getElementById("verdict");
+  var stampEl = document.getElementById("stamp");
+  var sayEl = document.getElementById("say");
+  var whyEl = document.getElementById("why");
+  var scoreTxt = document.getElementById("scoreTxt");
+  var barEl = document.getElementById("bar");
+  var flagsEl = document.getElementById("flags");
+  var saveBtn = document.getElementById("saveBtn");
+
+  function render() {
+    var r = evaluate();
+
+    barEl.style.width = Math.min(100, (r.load / 10) * 100) + "%";
+    scoreTxt.textContent = r.load + " / 10";
+
+    flagsEl.innerHTML = "";
+
+    if (!r.complete) {
+      verdictEl.className = "panel verdict v-none";
+      stampEl.textContent = "Sin veredicto";
+      sayEl.textContent = state.level === null
+        ? "Elige un nivel y responde los cinco filtros."
+        : "Faltan " + r.missing + (r.missing === 1 ? " filtro." : " filtros.");
+      whyEl.textContent = "";
+      saveBtn.disabled = true;
+      return;
+    }
+
+    var v = VERDICTS[r.verdict];
+    verdictEl.className = "panel verdict " + v.cls;
+    stampEl.textContent = v.stamp;
+    sayEl.textContent = v.say;
+    whyEl.textContent = r.why;
+
+    r.flags.forEach(function (f) {
+      var li = document.createElement("li");
+      li.textContent = f;
+      flagsEl.appendChild(li);
+    });
+
+    saveBtn.disabled = false;
+  }
+
+  /* ---------- ledger ---------- */
+
+  var tableEl = document.getElementById("ledgerTable");
+  var bodyEl = document.getElementById("ledgerBody");
+  var emptyEl = document.getElementById("ledgerEmpty");
+  var exportBtn = document.getElementById("exportBtn");
+  var clearBtn = document.getElementById("clearBtn");
+  var exportBox = document.getElementById("exportBox");
+
+  function load() {
+    try {
+      var raw = window.localStorage.getItem(STORE_KEY);
+      ledger = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(ledger)) ledger = [];
+    } catch (e) {
+      ledger = [];
+    }
+  }
+
+  function persist() {
+    try {
+      window.localStorage.setItem(STORE_KEY, JSON.stringify(ledger));
+    } catch (e) { /* modo privado o almacenamiento bloqueado: la sesión sigue funcionando */ }
+  }
+
+  function toneFor(key) {
+    return { apoyo: "--ok", condicional: "--accent", declarar: "--warn", nousar: "--stop" }[key];
+  }
+
+  function renderLedger() {
+    bodyEl.innerHTML = "";
+    var has = ledger.length > 0;
+    tableEl.hidden = !has;
+    emptyEl.hidden = has;
+    exportBtn.disabled = !has;
+    clearBtn.disabled = !has;
+    if (!has) { exportBox.hidden = true; return; }
+
+    ledger.forEach(function (row, i) {
+      var tr = document.createElement("tr");
+      var tone = toneFor(row.verdict);
+      var v = VERDICTS[row.verdict];
+
+      var td1 = document.createElement("td");
+      td1.textContent = row.claim;
+      var td2 = document.createElement("td");
+      td2.textContent = row.source;
+      td2.style.color = "var(--ink-2)";
+      var td3 = document.createElement("td");
+      td3.className = "num";
+      td3.textContent = row.level;
+      var td4 = document.createElement("td");
+      td4.className = "num";
+      td4.textContent = row.load + "/10";
+      var td5 = document.createElement("td");
+      var pill = document.createElement("span");
+      pill.className = "pill";
+      pill.style.setProperty("--tone", "var(" + tone + ")");
+      pill.style.setProperty("--tone-soft", "var(" + tone + "-soft, var(--surface-2))");
+      pill.textContent = v.stamp;
+      td5.appendChild(pill);
+      var td6 = document.createElement("td");
+      td6.className = "num";
+      td6.textContent = row.date;
+      var td7 = document.createElement("td");
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "drop";
+      del.textContent = "×";
+      del.setAttribute("aria-label", "Quitar «" + row.claim + "» del ledger");
+      del.addEventListener("click", function () {
+        ledger.splice(i, 1);
+        persist();
+        renderLedger();
+      });
+      td7.appendChild(del);
+
+      [td1, td2, td3, td4, td5, td6, td7].forEach(function (td) { tr.appendChild(td); });
+      bodyEl.appendChild(tr);
+    });
+  }
+
+  saveBtn.addEventListener("click", function () {
+    var r = evaluate();
+    if (!r.complete) return;
+    var claim = document.getElementById("claim").value.trim();
+    var source = document.getElementById("source").value.trim();
+    ledger.unshift({
+      claim: claim || "(afirmación sin nombrar)",
+      source: source || "—",
+      level: state.level,
+      load: r.load,
+      verdict: r.verdict,
+      date: new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "short" })
+    });
+    persist();
+    renderLedger();
+    exportBox.hidden = true;
+    document.getElementById("ledger").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    state = { level: null, answers: {}, own: false };
+    document.getElementById("claim").value = "";
+    document.getElementById("source").value = "";
+    ownEl.checked = false;
+    Array.prototype.forEach.call(
+      document.querySelectorAll('#levels input, #filters input'),
+      function (i) { i.checked = false; }
+    );
+    render();
+  });
+
+  exportBtn.addEventListener("click", function () {
+    var lines = ["| Afirmación | Fuente | Nivel | Carga | Veredicto | Fecha |", "|---|---|---|---|---|---|"];
+    ledger.forEach(function (r) {
+      lines.push("| " + r.claim + " | " + r.source + " | " + r.level + " | " + r.load + "/10 | " +
+        VERDICTS[r.verdict].stamp + " | " + r.date + " |");
+    });
+    var text = lines.join("\n");
+    exportBox.value = text;
+    exportBox.hidden = false;
+    try {
+      navigator.clipboard.writeText(text).then(function () {
+        exportBtn.textContent = "Copiado";
+        setTimeout(function () { exportBtn.textContent = "Copiar como tabla"; }, 1800);
+      }, function () {
+        exportBtn.textContent = "Selecciónalo y cópialo";
+        setTimeout(function () { exportBtn.textContent = "Copiar como tabla"; }, 2600);
+      });
+    } catch (e) {
+      exportBtn.textContent = "Selecciónalo y cópialo";
+      setTimeout(function () { exportBtn.textContent = "Copiar como tabla"; }, 2600);
+    }
+    exportBox.focus();
+    exportBox.select();
+  });
+
+  clearBtn.addEventListener("click", function () {
+    ledger = [];
+    persist();
+    exportBox.hidden = true;
+    renderLedger();
+  });
+
+  load();
+  renderLedger();
+  render();
+})();
+</script>
